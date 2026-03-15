@@ -58,3 +58,20 @@ class TrafficPredictor:
 
     def decode_congestion(self, label: int) -> str:
         return str(self.encoders["congestion_level"].inverse_transform([label])[0])
+
+    def get_allowed_values(self, column: str) -> list[str]:
+        encoder = self.encoders[column]
+        return [str(item) for item in encoder.classes_]
+
+    def default_value(self, column: str, preferred: str | None = None) -> str:
+        allowed = self.get_allowed_values(column)
+        if not allowed:
+            raise ValueError(f"No allowed values available for {column}")
+
+        if preferred is not None:
+            preferred_lower = preferred.lower()
+            for value in allowed:
+                if value.lower() == preferred_lower:
+                    return value
+
+        return allowed[0]
